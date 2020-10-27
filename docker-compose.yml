@@ -1,0 +1,32 @@
+version: '3.1'
+services:
+    nginx:
+        image: nginx:latest
+        container_name: nginx_reverse_proxy
+        depends_on:
+            - flask
+        volumes:
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - my-docker-network
+        ports:
+            - 80:80
+    flask:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        image: flask:v1
+        container_name: flask_application
+        volumes:
+            - ./:/flask_component/
+        environment:
+            - FLASK_APP=/flask_component/index.py
+        command: python /flask_component/index.py
+        networks:
+            my-docker-network:
+                aliases:
+                    - flask_application
+        ports:
+            - 8080:5000
+networks:
+    my-docker-network:
